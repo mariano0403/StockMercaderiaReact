@@ -1,18 +1,16 @@
-import React, { useState } from "react";
-import { agregarMercaderia } from "../services/mercaderia";
+import React, { useState, useEffect } from "react";
+import { modificarMercaderia } from "../services/mercaderia";
 
-function AgregarMercaderia() {
-  const [formData, setFormData] = useState({
-    nombreProducto: "",
-    cantidad: "",
-    precio: "",
-    categoria: "",
-    descripcion: "",
-    proveedor: "",
-    porcentaje: "",
-  });
+function ModificarMercaderia({ productoInicial, onUpdate }) {
+  const [formData, setFormData] = useState(productoInicial);
+  const [error, setError] = useState(null);
 
-  const [precioTotal, setPrecioTotal] = useState(0);
+  // Asegúrate de que productoInicial esté definido antes de renderizar el componente
+  useEffect(() => {
+    if (productoInicial) {
+      setFormData(productoInicial);
+    }
+  }, [productoInicial]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,35 +22,44 @@ function AgregarMercaderia() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const nuevaMercaderia = { ...formData, precioTotal };
-    agregarMercaderia(nuevaMercaderia)
+    modificarMercaderia(formData.id, formData)
       .then(() => {
-        alert("Producto agregado con éxito");
-        setFormData({
-          nombreProducto: "",
-          cantidad: "",
-          precio: "",
-          categoria: "",
-          descripcion: "",
-          proveedor: "",
-          porcentaje: "",
-        });
-        setPrecioTotal(0);
+        alert("Producto modificado con éxito");
+        if (onUpdate) onUpdate(); // Actualiza la lista de productos
       })
       .catch((error) => {
-        console.log("Error al agregar el producto:", error);
+        setError("Error al modificar el producto. Por favor, intente de nuevo.");
+        console.log("Error al modificar el producto:", error);
       });
   };
 
+  // Mostrar un loader o mensaje si formData no está definido aún
+  if (!formData) {
+    return <div>Cargando datos del producto...</div>;
+  }
+
   return (
     <div>
-      <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>Agregar Mercaderia</h1>
+      <h2>Modificar Mercadería</h2>
       <form onSubmit={handleSubmit}>
         <table style={{ width: "100%" }}>
           <tbody>
             <tr>
               <td>
+                <label htmlFor="id">ID</label>
                 <input
+                  id="id"
+                  type="number"
+                  name="id"
+                  placeholder="ID"
+                  value={formData.id}
+                  onChange={handleChange}
+                  required
+                  readOnly
+                />
+                <label htmlFor="nombreProducto">Nombre Producto</label>
+                <input
+                  id="nombreProducto"
                   type="text"
                   name="nombreProducto"
                   placeholder="Nombre Producto"
@@ -62,7 +69,9 @@ function AgregarMercaderia() {
                 />
               </td>
               <td>
+                <label htmlFor="cantidad">Cantidad</label>
                 <input
+                  id="cantidad"
                   type="number"
                   name="cantidad"
                   placeholder="Cantidad"
@@ -74,7 +83,9 @@ function AgregarMercaderia() {
             </tr>
             <tr>
               <td>
+                <label htmlFor="precio">Precio</label>
                 <input
+                  id="precio"
                   type="number"
                   name="precio"
                   placeholder="Precio"
@@ -84,7 +95,9 @@ function AgregarMercaderia() {
                 />
               </td>
               <td>
+                <label htmlFor="porcentaje">Porcentaje</label>
                 <input
+                  id="porcentaje"
                   type="number"
                   name="porcentaje"
                   placeholder="Porcentaje"
@@ -96,7 +109,9 @@ function AgregarMercaderia() {
             </tr>
             <tr>
               <td>
+                <label htmlFor="categoria">Categoría</label>
                 <input
+                  id="categoria"
                   type="text"
                   name="categoria"
                   placeholder="Categoría"
@@ -106,7 +121,9 @@ function AgregarMercaderia() {
                 />
               </td>
               <td>
+                <label htmlFor="descripcion">Descripción</label>
                 <input
+                  id="descripcion"
                   type="text"
                   name="descripcion"
                   placeholder="Descripción"
@@ -118,7 +135,9 @@ function AgregarMercaderia() {
             </tr>
             <tr>
               <td>
+                <label htmlFor="proveedor">Proveedor</label>
                 <input
+                  id="proveedor"
                   type="text"
                   name="proveedor"
                   placeholder="Proveedor"
@@ -130,13 +149,14 @@ function AgregarMercaderia() {
             </tr>
           </tbody>
         </table>
+        {error && <div style={{ color: "red", marginTop: "1rem" }}>{error}</div>}
         <div style={{ textAlign: "center", marginTop: "1rem" }}>
-          <button type="submit">Agregar Producto</button>
+          <button type="submit">Actualizar Producto</button>
         </div>
       </form>
     </div>
   );
 }
 
-export default AgregarMercaderia;
+export default ModificarMercaderia;
 
